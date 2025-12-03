@@ -1,0 +1,56 @@
+@import "tailwindcss";
+@tailwind utilities;
+
+/* --- GLOBAL STYLES --- */
+:root {
+  --foreground-rgb: 0, 0, 0;
+  --background-start-rgb: 248, 249, 254; /* #F8F9FE */
+  --background-end-rgb: 255, 255, 255;
+}
+
+body {
+  color: rgb(var(--foreground-rgb));
+  background: #F8F9FE; /* Background Dashboard yang bersih */
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* --- CUSTOM SCROLLBAR (Opsional tapi mempercantik Web) --- */
+
+/* Lebar scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+/* Warna track/jalur scrollbar */
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+/* Warna batang scrollbar */
+::-webkit-scrollbar-thumb {
+  background: #c7c7c7;
+  border-radius: 4px;
+  border: 2px solid #f1f1f1; /* Memberi jarak/padding visual */
+}
+
+/* Warna saat di-hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* --- UTILITY CLASSES TAMBAHAN --- */
+
+/* Class ini aman digunakan jika Anda ingin membuat kartu hover
+   tanpa menggunakan @apply yang kadang error di Turbopack */
+.card-hover-effect {
+  transition: all 0.3s ease-in-out;
+}
+
+.card-hover-effect:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
