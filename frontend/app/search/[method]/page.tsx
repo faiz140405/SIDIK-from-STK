@@ -4,7 +4,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { api } from "@/lib/api";
-import { Search, ArrowLeft, ArrowRight, FileText, Activity, Layers, AlertCircle, Filter, ArrowUpDown, Sparkles } from "lucide-react";
+import { Search, ArrowLeft, ArrowRight, FileText, Activity, Layers, AlertCircle, Filter, ArrowUpDown, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { Poppins } from 'next/font/google';
 
@@ -43,8 +43,12 @@ export default function SearchPage() {
 
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [suggestion, setSuggestion] = useState<string | null>(null); // State Suggestion
+  const [suggestion, setSuggestion] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // --- STATE PAGINATION ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6; // Tampilkan 6 kartu per halaman
 
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
@@ -69,6 +73,15 @@ export default function SearchPage() {
     return data;
   }, [results, selectedCategory, sortOrder]);
 
+  // --- LOGIKA PAGINATION ---
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredResults.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredResults.length / itemsPerPage);
+
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+  // -------------------------
+
   useEffect(() => {
     if (method === 'clustering') handleSearch();
   }, [method]);
@@ -79,8 +92,9 @@ export default function SearchPage() {
     
     setLoading(true);
     setResults([]);
-    setSuggestion(null); // Reset suggestion
+    setSuggestion(null);
     setSelectedCategory("All");
+    setCurrentPage(1); // Reset ke halaman 1 setiap cari baru
 
     if (overrideQuery) setQuery(overrideQuery);
 
@@ -90,13 +104,11 @@ export default function SearchPage() {
 
       if (method === 'clustering') {
         response = await api.get('/clustering');
-        // Clustering return array langsung (tanpa suggestion)
         const data = Array.isArray(response.data) ? response.data : [];
         data.sort((a: SearchResult, b: SearchResult) => (a.cluster || 0) - (b.cluster || 0));
         setResults(data);
       } else {
         response = await api.post(endpoint, { query: textToSearch });
-        // Format baru: { results: [], suggestion: "..." }
         setResults(response.data.results || []);
         setSuggestion(response.data.suggestion || null);
       }
@@ -157,7 +169,6 @@ export default function SearchPage() {
           </div>
         )}
 
-        {/* --- FITUR BARU: DID YOU MEAN --- */}
         {suggestion && (
             <div className="mb-8 flex items-center gap-2 bg-yellow-50 border border-yellow-200 p-4 rounded-2xl animate-pulse">
                 <Sparkles className="text-yellow-600" size={20} />
@@ -178,7 +189,7 @@ export default function SearchPage() {
                     <span className="text-xs font-bold text-gray-500 uppercase">Kategori:</span>
                     <select 
                         value={selectedCategory}
-                        onChange={(e) => setSelectedCategory(e.target.value)}
+                        onChange={(e) => { setSelectedCategory(e.target.value); setCurrentPage(1); }}
                         className="bg-gray-50 text-gray-700 text-sm font-semibold py-1.5 px-3 rounded-lg border-none outline-none cursor-pointer hover:bg-gray-100"
                     >
                         {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -196,7 +207,9 @@ export default function SearchPage() {
                         </button>
                     </div>
                 )}
-                <div className="ml-auto pl-4 text-xs font-bold text-gray-400">{filteredResults.length} Hasil</div>
+                <div className="ml-auto pl-4 text-xs font-bold text-gray-400">
+                    Menampilkan {currentItems.length} dari {filteredResults.length} Hasil
+                </div>
             </div>
         )}
 
@@ -210,8 +223,8 @@ export default function SearchPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
-          {filteredResults.map((item) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-8">
+          {currentItems.map((item) => (
             <div 
               key={item.id} 
               onClick={() => router.push(`/detail-analysis?doc_id=${item.id}&method=${method}&query=${query}&score=${item.score}`)}
@@ -243,6 +256,31 @@ export default function SearchPage() {
             </div>
           ))}
         </div>
+
+        {/* --- PAGINATION CONTROLS (BARU) --- */}
+        {!loading && filteredResults.length > itemsPerPage && (
+            <div className="flex justify-center items-center gap-4 pb-20">
+                <button 
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                    <ChevronLeft size={20} />
+                </button>
+                
+                <div className="text-sm font-bold text-gray-600 bg-white px-4 py-3 rounded-xl shadow-sm border border-gray-100">
+                    Halaman <span className="text-indigo-600">{currentPage}</span> dari {totalPages}
+                </div>
+
+                <button 
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    className="p-3 bg-white border border-gray-200 rounded-xl shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                >
+                    <ChevronRight size={20} />
+                </button>
+            </div>
+        )}
 
         {!loading && results.length === 0 && (method === 'clustering' || query !== "") && (
             <div className="flex flex-col items-center justify-center py-20 opacity-60">

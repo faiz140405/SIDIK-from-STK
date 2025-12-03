@@ -149,7 +149,7 @@ export default function Home() {
               AI Search Engine
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
-              SETALI <br/> <span className="text-2xl md:text-3xl font-medium opacity-90">Sistem Temu Kembali Informasi</span>
+              SIDIK <br/> <span className="text-2xl md:text-3xl font-medium opacity-90">Sistem Temu Kembali Informasi</span>
             </h1>
             <p className="text-indigo-100 text-lg mb-8 font-medium leading-relaxed opacity-90 max-w-lg">
               Platform IR lengkap dengan 6 metode pencarian, visualisasi data, dan analisis transparan.
