@@ -1,4 +1,3 @@
-// frontend/tailwind.config.ts
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -17,7 +16,6 @@ const config: Config = {
       fontFamily: {
         poppins: ['var(--font-poppins)'],
       },
-      // --- TAMBAHKAN INI ---
       keyframes: {
         gradient: {
           '0%, 100%': { 'background-position': '0% 50%' },
@@ -25,9 +23,8 @@ const config: Config = {
         },
       },
       animation: {
-        gradient: 'gradient 6s ease infinite', // Durasi 6 detik, looping selamanya
+        gradient: 'gradient 6s ease infinite',
       },
-      // ---------------------
     },
   },
   plugins: [],

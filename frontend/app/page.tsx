@@ -142,18 +142,14 @@ export default function Home() {
         </header>
 
         {/* --- HERO CARD --- */}
-        <div className="relative rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl shadow-indigo-200 dark:shadow-indigo-900/50 mb-12 overflow-hidden group">
-          
-          {/* BACKGROUND ANIMASI GRADIEN */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#6C63FF] via-[#8075FF] to-[#6C63FF] dark:from-[#4f46e5] dark:via-[#6366f1] dark:to-[#4f46e5] bg-[length:200%_auto] animate-gradient"></div>
-          
+        <div className="relative bg-gradient-to-r from-[#6C63FF] to-[#8075FF] rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl shadow-indigo-200 mb-12 overflow-hidden group">
           <div className="relative z-10 max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-xs font-bold mb-5 tracking-wide uppercase border border-white/10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-lg text-xs font-bold mb-5 tracking-wide uppercase">
               <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
               AI Search Engine
             </div>
             <h1 className="text-4xl md:text-5xl font-extrabold mb-4 leading-tight">
-              Temukan Informasi <br/> Lebih Cerdas & Cepat
+              SIDIK <br/> <span className="text-2xl md:text-3xl font-medium opacity-90">Sistem Temu Kembali Informasi</span>
             </h1>
             <p className="text-indigo-100 text-lg mb-8 font-medium leading-relaxed opacity-90 max-w-lg">
               Platform IR lengkap dengan 6 metode pencarian, visualisasi data, dan analisis transparan.
