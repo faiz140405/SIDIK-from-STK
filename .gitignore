@@ -1,0 +1,21 @@
+# Dependency Directories
+node_modules/
+venv/
+env/
+__pycache__/
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+.env.local
+
+# Expo / Next.js Build
+.expo/
+.next/
+dist/
+build/
+coverage/
+*.log
