@@ -8,6 +8,7 @@ import time
 import re
 import numpy as np
 from collections import Counter
+import difflib
 
 # Machine Learning & NLP Libraries
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -74,6 +75,35 @@ def safe_delete(path):
     except Exception as e:
         print(f"[WARNING] Gagal hapus {path}: {e}")
 
+def get_correction(query):
+    if not query or not documents: return None
+    
+    # 1. Bangun Vocabulary (Kamus) dari seluruh dokumen
+    all_text = " ".join([d['text'] for d in documents]).lower()
+    # Ambil semua kata unik (alfanumerik)
+    vocab = set(re.findall(r'\w+', all_text))
+    
+    query_words = query.lower().split()
+    corrected_words = []
+    has_correction = False
+    
+    for word in query_words:
+        # Jika kata ada di kamus, biarkan. Jika tidak, cari yang mirip.
+        if word in vocab:
+            corrected_words.append(word)
+        else:
+            # Cari 1 kata paling mirip dengan kemiripan minimal 60%
+            matches = difflib.get_close_matches(word, vocab, n=1, cutoff=0.6)
+            if matches:
+                corrected_words.append(matches[0])
+                has_correction = True
+            else:
+                corrected_words.append(word) # Kalau tidak ketemu, biarkan
+    
+    if has_correction:
+        return " ".join(corrected_words)
+    return None
+
 @app.route('/corpus/stats', methods=['GET'])
 def get_corpus_stats():
     if not documents: return jsonify([])
@@ -92,6 +122,21 @@ def get_corpus_stats():
     cloud_data = [{"text": word, "value": count} for word, count in word_counts.most_common(50)]
     
     return jsonify(cloud_data)
+    
+@app.route('/corpus/categories', methods=['GET'])
+def get_category_stats():
+    if not documents:
+        return jsonify({})
+    
+    stats = {}
+    for doc in documents:
+        cat = doc.get('category', 'Uncategorized')
+        if cat in stats:
+            stats[cat] += 1
+        else:
+            stats[cat] = 1
+            
+    return jsonify(stats)
 
 @app.route('/documents/bulk', methods=['POST'])
 def add_documents_bulk():
