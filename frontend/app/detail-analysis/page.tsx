@@ -68,29 +68,46 @@ function DetailContent() {
     setExporting(true);
 
     try {
-      // 1. Ambil screenshot area konten
+      // 1. Ambil screenshot
       const canvas = await html2canvas(contentRef.current, {
-        scale: 2, // Kualitas tinggi
-        useCORS: true, // Agar gambar/chart ter-render
-        backgroundColor: '#F8F9FE', // Sesuai bg website
+        scale: 2, // Resolusi tinggi
+        useCORS: true,
+        backgroundColor: '#F8F9FE',
+        // OPSI PENTING: Matikan fitur CSS modern yang bikin error
+        ignoreElements: (element) => {
+           // Abaikan elemen yang mungkin punya style aneh (opsional)
+           return false;
+        },
+        onclone: (clonedDoc) => {
+            // HACK: Ubah semua warna modern menjadi fallback RGB di dalam clone
+            // Ini agar html2canvas tidak bingung baca 'oklab'
+            const allElements = clonedDoc.getElementsByTagName('*');
+            for (let i = 0; i < allElements.length; i++) {
+                const el = allElements[i] as HTMLElement;
+                const style = window.getComputedStyle(el);
+                
+                if (style.backgroundColor.includes('oklch') || style.backgroundColor.includes('oklab')) {
+                    el.style.backgroundColor = '#ffffff'; // Fallback aman
+                }
+                if (style.color.includes('oklch') || style.color.includes('oklab')) {
+                    el.style.color = '#000000'; // Fallback aman
+                }
+            }
+        }
       });
 
-      // 2. Konversi ke PDF
+      // 2. Konversi ke PDF (Sama seperti sebelumnya)
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
-      
-      const imgWidth = 210; // Lebar A4 (mm)
-      const pageHeight = 297; // Tinggi A4 (mm)
+      const imgWidth = 210;
+      const pageHeight = 297;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
       let heightLeft = imgHeight;
       let position = 0;
 
-      // Halaman pertama
       pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
       heightLeft -= pageHeight;
 
-      // Halaman selanjutnya (jika konten panjang)
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
@@ -98,12 +115,12 @@ function DetailContent() {
         heightLeft -= pageHeight;
       }
 
-      // 3. Download File
       pdf.save(`Laporan_Analisis_${method}_Doc${doc_id}.pdf`);
 
     } catch (error) {
-      console.error("Gagal export PDF", error);
-      alert("Gagal membuat PDF. Coba lagi.");
+      console.error("Gagal export PDF:", error);
+      // Tampilkan alert yang lebih ramah
+      alert("Gagal membuat PDF karena format warna modern. Coba gunakan browser Chrome/Edge terbaru.");
     } finally {
       setExporting(false);
     }
